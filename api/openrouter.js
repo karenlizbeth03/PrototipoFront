@@ -1,5 +1,15 @@
 export default async function handler(req, res) {
-  const { messages, model } = req.body;
+  // Permitir CORS
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
+  // Manejar preflight OPTIONS
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
+  const { messages, model = "openai/gpt-3.5-turbo" } = req.body;
 
   const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
@@ -9,8 +19,8 @@ export default async function handler(req, res) {
       "X-Title": "Free ChatBot",
     },
     body: JSON.stringify({
-      model: model || "openai/gpt-3.5-turbo",
-      messages: messages,
+      model,
+      messages,
     }),
   });
 
