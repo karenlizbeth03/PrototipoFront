@@ -1,10 +1,18 @@
 export default async function handler(req, res) {
-  // ✅ Configurar CORS
-  res.setHeader("Access-Control-Allow-Origin", "https://sinlimites.vercel.app");
+  // ✅ Configurar CORS dinámico
+  const allowedOrigins = [
+    "https://sinlimites.vercel.app",
+    "https://sinlimites-lzg3uwshe-karen-moyolemas-projects.vercel.app",
+    "https://sinlimites-jua6dp62e-karen-moyolemas-projects.vercel.app",
+  ];
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
-  // ✅ Responder preflight (OPTIONS)
+  // ✅ Responder preflight
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
@@ -14,7 +22,6 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  // ✅ Leer mensajes del cuerpo
   const { messages } = req.body;
 
   try {
@@ -26,7 +33,7 @@ export default async function handler(req, res) {
         "X-Title": "Free ChatBot",
       },
       body: JSON.stringify({
-        model: "openai/gpt-3.5-turbo", // o cambia el modelo si usas otro
+        model: "openai/gpt-3.5-turbo",
         messages: messages,
       }),
     });
