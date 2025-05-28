@@ -22,10 +22,8 @@ Future<String> askOpenRouter(
     final url = Uri.parse('https://sinlimites.vercel.app/api/openrouter');
     final headers = {'Content-Type': 'application/json'};
 
-    final body = jsonEncode({
-      'model': 'openai/gpt-3.5-turbo',
-      'messages': messages,
-    });
+    final body = jsonEncode({'messages': messages});
+
 
     final response = await http.post(url, headers: headers, body: body);
 

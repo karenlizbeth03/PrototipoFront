@@ -1,5 +1,5 @@
 export default async function handler(req, res) {
-  const { messages } = req.body;
+  const { messages, model } = req.body;
 
   const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
     method: "POST",
@@ -9,7 +9,7 @@ export default async function handler(req, res) {
       "X-Title": "Free ChatBot",
     },
     body: JSON.stringify({
-      model: "openai/gpt-3.5-turbo",
+      model: model || "openai/gpt-3.5-turbo",
       messages: messages,
     }),
   });
