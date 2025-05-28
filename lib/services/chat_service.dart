@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 String pdfContext = '';
 
@@ -19,12 +18,9 @@ Texto del documento:
 Pregunta: $question
 ''';
 
-    final url = Uri.parse('https://openrouter.ai/api/v1/chat/completions');
-    final headers = {
-  'Authorization': 'Bearer ${dotenv.env['OPENROUTER_API_KEY']}',
-  'Content-Type': 'application/json',
-  'X-Title': 'Free ChatBot',
-};
+    // ✅ Ahora apuntamos al backend seguro en Vercel
+    final url = Uri.parse('https://sinlimites.vercel.app/api/openrouter');
+    final headers = {'Content-Type': 'application/json'};
 
     final body = jsonEncode({
       'model': 'mistralai/mixtral-8x7b-instruct:free',
@@ -37,7 +33,7 @@ Pregunta: $question
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      return data['choices']?[0]?['message']?['content'] ?? 'No response received.';
+      return data['choices']?[0]?['message']?['content'] ?? 'No se recibió respuesta del modelo.';
     } else {
       return 'Error: Código de respuesta ${response.statusCode}';
     }
