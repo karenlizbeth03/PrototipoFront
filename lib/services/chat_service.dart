@@ -19,7 +19,7 @@ Pregunta: $question
 ''';
 
     // ✅ Ahora apuntamos al backend seguro en Vercel
-    final url = Uri.parse('https://sinlimites.vercel.app/api/openrouter');
+    final url = Uri.parse('https://sinlimites-dnk9nlrxd-karen-moyolemas-projects.vercel.app/api/openrouter');
     final headers = {'Content-Type': 'application/json'};
 
     final body = jsonEncode({
