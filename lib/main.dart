@@ -4,9 +4,15 @@ import 'screens/talking_avatar_screen.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
-  await dotenv.load(); // Carga las variables del archivo .env
+  WidgetsFlutterBinding.ensureInitialized();
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    debugPrint("Error cargando .env: $e");
+  }
   runApp(MyApp());
 }
+
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});

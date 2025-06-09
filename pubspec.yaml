@@ -66,7 +66,8 @@ flutter:
     - assets/pdf-icon.png
     - assets/Pumi.png
     - assets/Pumi.gif
-
+    - assets/.env
+    - .env
 
 
   # The following line ensures that the Material Icons font is

@@ -10,6 +10,12 @@ import '../hooks/use_voice.dart';
 import '../services/ask_open_router.dart';
 import '../components/voice_button.dart';
 import '../services/chat_service.dart';
+import 'dart:convert';
+import 'package:file_picker/file_picker.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter/foundation.dart'; // Para kIsWeb
+import 'package:http_parser/http_parser.dart'; // Para MediaType
+
 
 class Message {
   final String id;
@@ -45,12 +51,28 @@ class _ChatScreenState extends State<ChatScreen> {
   void initState() {
     super.initState();
     useVoice = UseVoice(
-      onTranscriptChange: (transcript) {
-        if (transcript.isNotEmpty && transcript != _inputController.text) {
-          _inputController.text = transcript;
-        }
-      },
-    );
+  onTranscriptChange: (transcript) {
+    if (transcript.isNotEmpty) {
+      final lower = transcript.toLowerCase();
+
+      if (lower.contains('cargar archivo')) {
+        // Simula presionar el botón para cargar archivo
+        pickFileProgrammatically();
+        useVoice.cancelListening();
+        return;
+      } else if (lower.contains('enviar mensaje')) {
+        sendMessage();
+        useVoice.cancelListening();
+        return;
+      }
+
+      // Actualiza el campo de texto si no es un comando
+      if (transcript != _inputController.text) {
+        _inputController.text = transcript;
+      }
+    }
+  },
+);
 
     flutterTts.setLanguage('es');
   }
@@ -61,6 +83,7 @@ class _ChatScreenState extends State<ChatScreen> {
     _inputController.dispose();
     super.dispose();
   }
+  
 
   Future<String> getBotResponse(String userInput) async {
     try {
@@ -81,9 +104,9 @@ class _ChatScreenState extends State<ChatScreen> {
 
     if (text.isEmpty && pdfText == null) return;
     // Detén escucha de voz si está activa
-   /*  if (useVoice.isListening) {
+    if (useVoice.isListening) {
       await useVoice.stopListening();
-    } */
+    }
 
     // Limpia input inmediatamente para que el usuario vea el campo limpio
     _inputController.clear();
@@ -167,6 +190,65 @@ class _ChatScreenState extends State<ChatScreen> {
       );
     });
   }
+
+  void pickFileProgrammatically() async {
+  final result = await FilePicker.platform.pickFiles(
+    type: FileType.custom,
+    allowedExtensions: ['pdf'],
+  );
+
+  if (result != null) {
+    final file = result.files.single;
+    final fileName = file.name;
+
+    if (file.extension?.toLowerCase() != 'pdf') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Solo se permiten archivos PDF")),
+      );
+      return;
+    }
+
+    final request = http.MultipartRequest(
+      'POST',
+      Uri.parse('https://backendpdf-production-57c7.up.railway.app/upload-pdf'),
+    );
+
+    try {
+      if (kIsWeb) {
+        if (file.bytes == null) return;
+        request.files.add(
+          http.MultipartFile.fromBytes(
+            'pdf',
+            file.bytes!,
+            filename: fileName,
+            contentType: MediaType('application', 'pdf'),
+          ),
+        );
+      } else {
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'pdf',
+            file.path!,
+            contentType: MediaType('application', 'pdf'),
+          ),
+        );
+      }
+
+      final response = await request.send();
+      final responseData = await http.Response.fromStream(response);
+
+      if (response.statusCode == 200) {
+        final decoded = json.decode(responseData.body);
+        handleExtractedPdf(decoded['text'], fileName);
+      } else {
+        handleExtractedPdf('Error al procesar el archivo PDF.', fileName);
+      }
+    } catch (e) {
+      handleExtractedPdf('Error de red.', fileName);
+    }
+  }
+}
+
 
   @override
   Widget build(BuildContext context) {
