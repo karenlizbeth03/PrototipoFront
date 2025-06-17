@@ -1,23 +1,27 @@
 export default async function handler(req, res) {
-  // ✅ Configurar CORS dinámico
   const allowedOrigins = [
     "https://sinlimites.vercel.app",
+    "https://sinlimitesai.vercel.app",
     "https://sinlimites-lzg3uwshe-karen-moyolemas-projects.vercel.app",
     "https://sinlimites-jua6dp62e-karen-moyolemas-projects.vercel.app",
+    "https://sinlimitesai-7y238qjkm-karen-moyolemas-projects.vercel.app",
   ];
+
   const origin = req.headers.origin;
+
   if (allowedOrigins.includes(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Vary", "Origin");
+    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  } else {
+    return res.status(403).json({ error: "Origen no permitido" });
   }
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
-  // ✅ Responder preflight
   if (req.method === "OPTIONS") {
     return res.status(200).end();
   }
 
-  // ✅ Validar método
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
