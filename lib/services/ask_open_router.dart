@@ -18,7 +18,7 @@ Future<String> askOpenRouter(
       {'role': 'user', 'content': userMessage},
     ];
 
-    final url = Uri.parse('https://sinlimites.vercel.app/api/openrouter');
+    final url = Uri.parse('https://sinlimitesai.vercel.app/api/openrouter');
     final headers = {'Content-Type': 'application/json'};
 
     final body = jsonEncode({'messages': messages});
